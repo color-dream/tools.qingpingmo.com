@@ -18,12 +18,6 @@
         <h2 class="section-title">实用工具</h2>
         <div class="tools-grid">
           <ToolCard
-            title="时间转换"
-            description="Unix 时间戳转换、时区转换、时间差计算、日期格式化——一站式时间处理工具。"
-            icon="⏰"
-            to="/tools/time"
-          />
-          <ToolCard
             title="图片处理"
             description="格式转换、尺寸调整、图片裁剪、旋转翻转、文字水印、EXIF 信息查看——纯浏览器本地处理。"
             icon="🖼️"
@@ -34,6 +28,12 @@
             description="PDF 转图片、图片转 PDF、PDF 合并拆分、PDF 信息查看——纯浏览器本地处理。"
             icon="📑"
             to="/tools/pdf"
+          />
+          <ToolCard
+            title="时间转换"
+            description="Unix 时间戳转换、时区转换、时间差计算、日期格式化——一站式时间处理工具。"
+            icon="⏰"
+            to="/tools/time"
           />
           <!-- 未来更多工具卡片在此添加 -->
         </div>
@@ -53,6 +53,18 @@ useHead({
   ],
   link: [
     { rel: 'canonical', href: 'https://tools.qingpingmo.com' },
+  ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: '青萍之末在线工具',
+        url: 'https://tools.qingpingmo.com',
+        description: '青萍之末在线工具集——图片处理、PDF 处理、时间转换等实用在线工具。',
+      }),
+    },
   ],
 })
 </script>
@@ -156,9 +168,21 @@ useHead({
 
 /* ----- Tools Grid ----- */
 .tools-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .tools-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {

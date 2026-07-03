@@ -236,6 +236,31 @@ useHead({
   link: [
     { rel: 'canonical', href: 'https://tools.qingpingmo.com/tools/time' },
   ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify([
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: '时间转换工具',
+          url: 'https://tools.qingpingmo.com/tools/time',
+          description: 'Unix 时间戳转换、时区转换、时间差计算、日期格式化。',
+          applicationCategory: 'UtilityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0' },
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: '首页', item: 'https://tools.qingpingmo.com' },
+            { '@type': 'ListItem', position: 2, name: '时间转换', item: 'https://tools.qingpingmo.com/tools/time' },
+          ],
+        },
+      ]),
+    },
+  ],
 })
 
 // ===== Tabs =====

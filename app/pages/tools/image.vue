@@ -462,6 +462,31 @@ useHead({
   link: [
     { rel: 'canonical', href: 'https://tools.qingpingmo.com/tools/image' },
   ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify([
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: '图片处理工具',
+          url: 'https://tools.qingpingmo.com/tools/image',
+          description: '格式转换、尺寸调整、图片裁剪、旋转翻转、文字水印、EXIF 信息查看。纯浏览器本地处理。',
+          applicationCategory: 'UtilityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0' },
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: '首页', item: 'https://tools.qingpingmo.com' },
+            { '@type': 'ListItem', position: 2, name: '图片处理', item: 'https://tools.qingpingmo.com/tools/image' },
+          ],
+        },
+      ]),
+    },
+  ],
 })
 
 // ===== Shared utilities =====

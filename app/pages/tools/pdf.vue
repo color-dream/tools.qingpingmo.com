@@ -350,6 +350,31 @@ useHead({
   link: [
     { rel: 'canonical', href: 'https://tools.qingpingmo.com/tools/pdf' },
   ],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify([
+        {
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'PDF 处理工具',
+          url: 'https://tools.qingpingmo.com/tools/pdf',
+          description: 'PDF 转图片、图片转 PDF、PDF 合并拆分、PDF 信息查看。纯浏览器本地处理。',
+          applicationCategory: 'UtilityApplication',
+          operatingSystem: 'All',
+          offers: { '@type': 'Offer', price: '0' },
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: '首页', item: 'https://tools.qingpingmo.com' },
+            { '@type': 'ListItem', position: 2, name: 'PDF 处理', item: 'https://tools.qingpingmo.com/tools/pdf' },
+          ],
+        },
+      ]),
+    },
+  ],
 })
 
 // ===== Shared utilities =====
