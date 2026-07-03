@@ -1,0 +1,165 @@
+/* ===== Design Tokens ===== */
+:root {
+  --color-celadon: #EEF2ED;
+  --color-ink: #1F2420;
+  --color-duckweed: #6B7F6B;
+  --color-light-ink: #8A958A;
+  --color-white: #FAFBFA;
+  --color-rain: #D8DDD6;
+  --color-surface: #F5F7F4;
+  --color-border: #C8CEC6;
+  --color-hover: #E8EDE7;
+
+  --font-display: "LXGW WenKai Screen", "LXGW WenKai", "Noto Serif SC", "SimSun", serif;
+  --font-body: "LXGW WenKai Screen", "LXGW WenKai", "Noto Serif SC", "SimSun", serif;
+  --font-mono: "SF Mono", "Cascadia Code", "Consolas", "Monaco", monospace;
+
+  --max-width: 720px;
+  --section-gap: clamp(3rem, 8vw, 5rem);
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+
+/* ===== Reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--color-ink);
+  background-color: var(--color-celadon);
+  overflow-x: hidden;
+}
+
+/* ===== Accessibility ===== */
+:focus-visible {
+  outline: 2px solid var(--color-duckweed);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ===== Skip Link ===== */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-ink);
+  color: var(--color-white);
+  z-index: 1000;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ===== Dark Mode —「砚夜」===== */
+[data-theme='dark'] {
+  --color-celadon: #171C18;
+  --color-ink: #E3E7E1;
+  --color-duckweed: #8BA58B;
+  --color-light-ink: #959F94;
+  --color-white: #1E2420;
+  --color-rain: #2A302C;
+  --color-surface: #1C211D;
+  --color-border: #3A403A;
+  --color-hover: #222824;
+}
+
+/* ===== Theme-ready transitions ===== */
+html.theme-ready,
+html.theme-ready *,
+html.theme-ready *::before,
+html.theme-ready *::after {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    stroke 0.3s ease;
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: var(--color-duckweed);
+  color: var(--color-white);
+}
+
+/* ===== Shared Utility ===== */
+a {
+  color: var(--color-duckweed);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.625rem 0.875rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-duckweed);
+  box-shadow: 0 0 0 2px rgba(107, 127, 107, 0.15);
+}
+
+[data-theme='dark'] input:focus,
+[data-theme='dark'] select:focus,
+[data-theme='dark'] textarea:focus {
+  box-shadow: 0 0 0 2px rgba(139, 165, 139, 0.2);
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%238A958A' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
+}
