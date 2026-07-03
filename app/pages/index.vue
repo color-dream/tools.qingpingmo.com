@@ -29,6 +29,12 @@
             icon="🖼️"
             to="/tools/image"
           />
+          <ToolCard
+            title="PDF 处理"
+            description="PDF 转图片、图片转 PDF、PDF 合并拆分、PDF 信息查看——纯浏览器本地处理。"
+            icon="📑"
+            to="/tools/pdf"
+          />
           <!-- 未来更多工具卡片在此添加 -->
         </div>
       </div>
@@ -40,7 +46,7 @@
 useHead({
   title: '在线工具 - 青萍之末',
   meta: [
-    { name: 'description', content: '青萍之末在线工具集——图片处理、时间转换、时区转换、时间差计算等实用在线工具。从细微之处，见未来之风。' },
+    { name: 'description', content: '青萍之末在线工具集——图片处理、PDF 处理、时间转换等实用在线工具。从细微之处，见未来之风。' },
     { property: 'og:title', content: '在线工具 - 青萍之末' },
     { property: 'og:description', content: '青萍之末在线工具集——图片处理、时间转换、时区转换、时间差计算等实用在线工具。' },
     { property: 'og:url', content: 'https://tools.qingpingmo.com' },

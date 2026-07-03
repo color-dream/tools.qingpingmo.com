@@ -12,6 +12,7 @@
   "dependencies": {
     "exif-js": "^2.3.0",
     "nuxt": "latest",
+    "pdf-lib": "^1.17.1",
     "vue": "latest",
     "vue-router": "latest"
   }
