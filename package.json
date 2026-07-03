@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "exif-js": "^2.3.0",
     "nuxt": "latest",
     "vue": "latest",
     "vue-router": "latest"

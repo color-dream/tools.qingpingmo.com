@@ -5,6 +5,7 @@
     "": {
       "name": "tools.qingpingmo.com",
       "dependencies": {
+        "exif-js": "^2.3.0",
         "nuxt": "latest",
         "vue": "latest",
         "vue-router": "latest",
@@ -697,6 +698,8 @@
     "events-universal": ["events-universal@1.0.1", "", { "dependencies": { "bare-events": "^2.7.0" } }, "sha512-LUd5euvbMLpwOF8m6ivPCbhQeSiYVNb8Vs0fQ8QjXo0JTkEHpz8pxdQf0gStltaPpw0Cca8b39KxvK9cfKRiAw=="],
 
     "execa": ["execa@8.0.1", "", { "dependencies": { "cross-spawn": "^7.0.3", "get-stream": "^8.0.1", "human-signals": "^5.0.0", "is-stream": "^3.0.0", "merge-stream": "^2.0.0", "npm-run-path": "^5.1.0", "onetime": "^6.0.0", "signal-exit": "^4.1.0", "strip-final-newline": "^3.0.0" } }, "sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg=="],
+
+    "exif-js": ["exif-js@2.3.0", "", {}, "sha512-1Og9pAzG2FZRVlaavH8bB8BTeHcjMdJhKmeQITkX+uLRCD0xPtKAdZ2clZmQdJ56p9adXtJ8+jwrGp/4505lYg=="],
 
     "exsolve": ["exsolve@1.1.0", "", {}, "sha512-D+42+T12DdIlJM3uepa55qGiL3sYdLBOxIl2ifQCzCHz4c7eiolaHsi3BIqEr7JxBzxv2pYZQX9kw16ziMcEmw=="],
 

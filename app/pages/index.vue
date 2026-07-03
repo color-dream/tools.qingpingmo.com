@@ -23,6 +23,12 @@
             icon="⏰"
             to="/tools/time"
           />
+          <ToolCard
+            title="图片处理"
+            description="格式转换、尺寸调整、图片裁剪、旋转翻转、文字水印、EXIF 信息查看——纯浏览器本地处理。"
+            icon="🖼️"
+            to="/tools/image"
+          />
           <!-- 未来更多工具卡片在此添加 -->
         </div>
       </div>
@@ -34,9 +40,9 @@
 useHead({
   title: '在线工具 - 青萍之末',
   meta: [
-    { name: 'description', content: '青萍之末在线工具集——时间转换、时区转换、时间差计算等实用在线工具。从细微之处，见未来之风。' },
+    { name: 'description', content: '青萍之末在线工具集——图片处理、时间转换、时区转换、时间差计算等实用在线工具。从细微之处，见未来之风。' },
     { property: 'og:title', content: '在线工具 - 青萍之末' },
-    { property: 'og:description', content: '青萍之末在线工具集——时间转换、时区转换、时间差计算等实用在线工具。' },
+    { property: 'og:description', content: '青萍之末在线工具集——图片处理、时间转换、时区转换、时间差计算等实用在线工具。' },
     { property: 'og:url', content: 'https://tools.qingpingmo.com' },
   ],
   link: [
