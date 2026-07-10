@@ -478,7 +478,9 @@ async function loadPdf2Img(file: File) {
 async function renderAllPages() {
   if (!pdf2imgDoc.value) return
   pdf2imgLoading.value = true
+  // 立即将所有页面重置为待渲染状态
   const doc = pdf2imgDoc.value
+  pdf2imgPages.value = Array.from({ length: doc.numPages }, () => ({ dataUrl: '', blobSize: 0 }))
   for (let i = 0; i < doc.numPages; i++) {
     await renderSinglePage(i + 1, i)
   }
