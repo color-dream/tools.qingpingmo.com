@@ -51,12 +51,27 @@
             <!-- Controls -->
             <div class="field">
               <label class="field-label" for="pdf2img-format">输出格式</label>
-              <select id="pdf2img-format" v-model="pdf2imgFormat" @change="renderAllPages">
+              <select id="pdf2img-format" v-model="pdf2imgFormat">
                 <option value="png">PNG</option>
                 <option value="jpeg">JPEG</option>
                 <option value="webp">WebP</option>
               </select>
             </div>
+
+            <div class="field">
+              <label class="field-label" for="pdf2img-maxsize">每张图片最大大小</label>
+              <select id="pdf2img-maxsize" v-model="pdf2imgMaxSize">
+                <option value="unlimited">无限制</option>
+                <option value="512">500 KB</option>
+                <option value="1024">1 MB</option>
+                <option value="2048">2 MB</option>
+                <option value="5120">5 MB</option>
+              </select>
+            </div>
+
+            <button v-if="pdf2imgSettingsChanged" class="action-btn" @click="renderAllPages" :disabled="pdf2imgLoading">
+              {{ pdf2imgLoading ? '渲染中...' : '重新渲染' }}
+            </button>
 
             <!-- Page thumbnails -->
             <div class="field">
@@ -69,7 +84,7 @@
 
             <div class="page-grid">
               <div v-for="(page, i) in pdf2imgPages" :key="i" class="page-item">
-                <div class="page-number">第 {{ i + 1 }} 页</div>
+                <div class="page-number">第 {{ i + 1 }} 页 <span v-if="page.blobSize" class="page-size">({{ formatFileSize(page.blobSize) }})</span></div>
                 <div class="page-thumb" v-if="page.dataUrl" @click="openPreview(i)">
                   <img :src="page.dataUrl" :alt="'第' + (i + 1) + '页'" />
                 </div>
@@ -421,9 +436,18 @@ const pdf2imgDoc = shallowRef<any>(null)
 const pdf2imgFileName = ref('')
 const pdf2imgPageCount = ref(0)
 const pdf2imgFormat = ref('png')
-const pdf2imgPages = ref<{ dataUrl: string }[]>([])
+const pdf2imgMaxSize = ref('unlimited')
+const pdf2imgPages = ref<{ dataUrl: string; blobSize: number }[]>([])
 const pdf2imgLoading = ref(false)
 const previewPageIndex = ref<number | null>(null)
+const pdf2imgRenderedFormat = ref('')
+const pdf2imgRenderedMaxSize = ref('')
+
+const pdf2imgSettingsChanged = computed(() => {
+  if (!pdf2imgDoc.value) return false
+  return pdf2imgFormat.value !== pdf2imgRenderedFormat.value
+    || pdf2imgMaxSize.value !== pdf2imgRenderedMaxSize.value
+})
 
 function triggerPdf2ImgUpload() { pdf2imgInput.value?.click() }
 function openPreview(i: number) { previewPageIndex.value = i }
@@ -446,7 +470,7 @@ async function loadPdf2Img(file: File) {
   const doc = await pdfjs.getDocument({ data: buf }).promise
   pdf2imgDoc.value = doc
   pdf2imgPageCount.value = doc.numPages
-  pdf2imgPages.value = Array.from({ length: doc.numPages }, () => ({ dataUrl: '' }))
+  pdf2imgPages.value = Array.from({ length: doc.numPages }, () => ({ dataUrl: '', blobSize: 0 }))
   await nextTick()
   await renderAllPages()
 }
@@ -458,20 +482,72 @@ async function renderAllPages() {
   for (let i = 0; i < doc.numPages; i++) {
     await renderSinglePage(i + 1, i)
   }
+  pdf2imgRenderedFormat.value = pdf2imgFormat.value
+  pdf2imgRenderedMaxSize.value = pdf2imgMaxSize.value
   pdf2imgLoading.value = false
+}
+
+function getMime(): string {
+  return pdf2imgFormat.value === 'jpeg' ? 'image/jpeg' : pdf2imgFormat.value === 'webp' ? 'image/webp' : 'image/png'
+}
+
+function getMaxBytes(): number {
+  if (pdf2imgMaxSize.value === 'unlimited') return 0
+  return Number(pdf2imgMaxSize.value) * 1024
+}
+
+async function renderToCanvas(pdfPage: any, baseViewport: any, scale: number, mime: string, quality: number): Promise<string> {
+  const viewport = pdfPage.getViewport({ scale })
+  const canvas = document.createElement('canvas')
+  canvas.width = baseViewport.width * scale
+  canvas.height = baseViewport.height * scale
+  const ctx = canvas.getContext('2d')!
+  await pdfPage.render({ canvasContext: ctx, viewport }).promise
+  return canvas.toDataURL(mime, quality)
+}
+
+function getDataUrlSize(dataUrl: string): number {
+  const base64 = dataUrl.split(',')[1]
+  if (!base64) return 0
+  const padding = (base64.match(/=+$/) || [''])[0].length
+  return Math.floor(base64.length * 3 / 4) - padding
 }
 
 async function renderSinglePage(pageNum: number, idx: number) {
   const doc = pdf2imgDoc.value
   const page = await doc.getPage(pageNum)
-  const viewport = page.getViewport({ scale: 1 })
-  const canvas = document.createElement('canvas')
-  canvas.width = viewport.width
-  canvas.height = viewport.height
-  const ctx = canvas.getContext('2d')!
-  await page.render({ canvasContext: ctx, viewport }).promise
-  const mime = pdf2imgFormat.value === 'jpeg' ? 'image/jpeg' : pdf2imgFormat.value === 'webp' ? 'image/webp' : 'image/png'
-  pdf2imgPages.value[idx].dataUrl = canvas.toDataURL(mime, 0.92)
+  const baseViewport = page.getViewport({ scale: 1 })
+  const mime = getMime()
+  const maxBytes = getMaxBytes()
+
+  let scale = 1
+  let quality = 0.92
+  let dataUrl = await renderToCanvas(page, baseViewport, scale, mime, quality)
+  let size = getDataUrlSize(dataUrl)
+
+  if (maxBytes > 0 && size > maxBytes) {
+    if (mime !== 'image/png') {
+      const qualities = [0.8, 0.7, 0.6, 0.5, 0.4, 0.3]
+      for (const q of qualities) {
+        quality = q
+        dataUrl = await renderToCanvas(page, baseViewport, scale, mime, quality)
+        size = getDataUrlSize(dataUrl)
+        if (size <= maxBytes) break
+      }
+    }
+    if (size > maxBytes) {
+      const scales = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3]
+      for (const s of scales) {
+        scale = s
+        dataUrl = await renderToCanvas(page, baseViewport, scale, mime, quality)
+        size = getDataUrlSize(dataUrl)
+        if (size <= maxBytes) break
+      }
+    }
+  }
+
+  pdf2imgPages.value[idx].dataUrl = dataUrl
+  pdf2imgPages.value[idx].blobSize = size
 }
 
 function downloadPage(idx: number) {
@@ -1206,6 +1282,11 @@ function resetInfo() {
   font-size: 0.875rem;
   color: var(--color-light-ink);
   padding: 1rem;
+}
+.page-size {
+  font-size: 0.6875rem;
+  color: var(--color-rain);
+  margin-left: 0.25rem;
 }
 
 /* ===== Image list (Img→PDF, Merge) ===== */
