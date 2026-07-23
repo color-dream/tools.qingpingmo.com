@@ -76,7 +76,9 @@
             <!-- Page thumbnails -->
             <div class="field">
               <div class="thumb-actions">
-                <button class="preset-btn" @click="downloadAllPages">下载全部 {{ pdf2imgPageCount }} 页</button>
+                <button class="preset-btn" :disabled="!pdf2imgCanDownloadAll || pdf2imgZipping" @click="downloadAllPages">
+                  {{ pdf2imgZipping ? '正在打包...' : `下载全部 ${pdf2imgPageCount} 页（ZIP）` }}
+                </button>
               </div>
             </div>
 
@@ -352,6 +354,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, computed, nextTick } from 'vue'
 import { PDFDocument } from 'pdf-lib'
+import { zip } from 'fflate'
 
 // SEO
 useHead({
@@ -439,6 +442,7 @@ const pdf2imgFormat = ref('png')
 const pdf2imgMaxSize = ref('unlimited')
 const pdf2imgPages = ref<{ dataUrl: string; blobSize: number }[]>([])
 const pdf2imgLoading = ref(false)
+const pdf2imgZipping = ref(false)
 const previewPageIndex = ref<number | null>(null)
 const pdf2imgRenderedFormat = ref('')
 const pdf2imgRenderedMaxSize = ref('')
@@ -447,6 +451,13 @@ const pdf2imgSettingsChanged = computed(() => {
   if (!pdf2imgDoc.value) return false
   return pdf2imgFormat.value !== pdf2imgRenderedFormat.value
     || pdf2imgMaxSize.value !== pdf2imgRenderedMaxSize.value
+})
+
+const pdf2imgCanDownloadAll = computed(() => {
+  return !pdf2imgLoading.value
+    && !pdf2imgSettingsChanged.value
+    && pdf2imgPages.value.length > 0
+    && pdf2imgPages.value.every(page => Boolean(page.dataUrl))
 })
 
 function triggerPdf2ImgUpload() { pdf2imgInput.value?.click() }
@@ -552,24 +563,63 @@ async function renderSinglePage(pageNum: number, idx: number) {
   pdf2imgPages.value[idx].blobSize = size
 }
 
-function downloadPage(idx: number) {
-  const page = pdf2imgPages.value[idx]
-  if (!page.dataUrl) return
-  const ext = pdf2imgFormat.value === 'jpeg' ? 'jpg' : pdf2imgFormat.value
-  const name = pdf2imgFileName.value.replace(/\.pdf$/i, '')
-  // Convert dataUrl to blob for download
-  const parts = page.dataUrl.split(',')
-  const mime = parts[0].match(/:(.*?);/)?.[1] ?? 'image/png'
+function dataUrlToBytes(dataUrl: string): Uint8Array {
+  const parts = dataUrl.split(',')
   const bstr = atob(parts[1])
   const arr = new Uint8Array(bstr.length)
   for (let i = 0; i < bstr.length; i++) arr[i] = bstr.charCodeAt(i)
-  triggerDownload(new Blob([arr], { type: mime }), `${name}_第${idx + 1}页.${ext}`)
+  return arr
 }
 
-function downloadAllPages() {
-  pdf2imgPages.value.forEach((_, i) => {
-    setTimeout(() => downloadPage(i), i * 300)
+function getDataUrlMime(dataUrl: string): string {
+  return dataUrl.split(',')[0].match(/:(.*?);/)?.[1] ?? 'image/png'
+}
+
+function getPdf2ImgExtension(): string {
+  return pdf2imgFormat.value === 'jpeg' ? 'jpg' : pdf2imgFormat.value
+}
+
+function createZip(files: Record<string, Uint8Array>): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    zip(files, { level: 6 }, (error, data) => {
+      if (error) reject(error)
+      else resolve(data)
+    })
   })
+}
+
+function downloadPage(idx: number) {
+  const page = pdf2imgPages.value[idx]
+  if (!page.dataUrl) return
+  const ext = getPdf2ImgExtension()
+  const name = pdf2imgFileName.value.replace(/\.pdf$/i, '')
+  const bytes = dataUrlToBytes(page.dataUrl)
+  triggerDownload(new Blob([bytes], { type: getDataUrlMime(page.dataUrl) }), `${name}_第${idx + 1}页.${ext}`)
+}
+
+async function downloadAllPages() {
+  if (!pdf2imgCanDownloadAll.value || pdf2imgZipping.value) return
+
+  pdf2imgZipping.value = true
+  try {
+    const ext = getPdf2ImgExtension()
+    const name = pdf2imgFileName.value.replace(/\.pdf$/i, '')
+    const files: Record<string, Uint8Array> = {}
+
+    pdf2imgPages.value.forEach((page, i) => {
+      files[`${name}_第${i + 1}页.${ext}`] = dataUrlToBytes(page.dataUrl)
+    })
+
+    const archive = await createZip(files)
+    triggerDownload(new Blob([archive], { type: 'application/zip' }), `${name}_images.zip`)
+  }
+  catch (error) {
+    console.error('Failed to create PDF image archive:', error)
+    window.alert('图片打包失败，请重试。')
+  }
+  finally {
+    pdf2imgZipping.value = false
+  }
 }
 
 function resetPdf2Img() {
@@ -1124,6 +1174,10 @@ function resetInfo() {
   white-space: nowrap;
 }
 .preset-btn:hover { border-color: var(--color-duckweed); color: var(--color-duckweed); }
+.preset-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 .preset-btn.active {
   background: var(--color-duckweed);
   color: var(--color-white);
